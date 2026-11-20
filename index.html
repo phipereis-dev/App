@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Brasa Burger</title>
+  <meta name="description" content="Peça hambúrgueres feitos na brasa, junte pontos e acompanhe seu pedido.">
+  <meta name="theme-color" content="#1f1612">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/" aria-label="Brasa Burger, início">
+      <img src="icon.svg" alt="" width="34" height="34">
+      <span>Brasa<b>Burger</b></span>
+    </a>
+    <a class="points-chip" href="#/pontos" aria-label="Brasa Pontos">🔥 <span data-points>0</span> pts</a>
+  </header>
+
+  <main id="view" class="container" tabindex="-1"></main>
+
+  <nav class="tabbar" aria-label="Navegação principal">
+    <a href="#/"><span aria-hidden="true">🏠</span>Início</a>
+    <a href="#/menu"><span aria-hidden="true">📋</span>Cardápio</a>
+    <a href="#/cupons"><span aria-hidden="true">🏷️</span>Cupons</a>
+    <a href="#/pedidos"><span aria-hidden="true">🧾</span>Pedidos</a>
+    <a href="#/carrinho" class="cart-tab"><span aria-hidden="true">🛒</span>Carrinho<i class="badge" data-cart-count hidden>0</i></a>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
