@@ -115,17 +115,22 @@
 
   function router() {
     clearInterval(trackingTimer);
-    const [path, ...params] = location.hash.replace(/^#\/?/, '').split('/');
-    const view = routes[path] || renderHome;
+    // Rotas no formato #tela ou #tela-parametro (ex.: #produto-duplo-fogo)
+    const hash = location.hash.slice(1);
+    const cut = hash.indexOf('-');
+    let path = cut < 0 ? hash : hash.slice(0, cut);
+    const param = cut < 0 ? undefined : decodeURIComponent(hash.slice(cut + 1));
+    if (!routes[path]) path = '';
+    const view = routes[path];
     // Novo container a cada tela para não acumular listeners da tela anterior
     const old = $('#view');
     const main = old.cloneNode(false);
     old.replaceWith(main);
-    view(main, ...params.map(decodeURIComponent));
+    view(main, param);
     window.scrollTo(0, 0);
     $$('.tabbar a').forEach((a) => {
-      const target = a.getAttribute('href').replace(/^#\/?/, '');
-      a.classList.toggle('active', target === path || (target === 'pedidos' && path === 'pedido'));
+      const target = a.getAttribute('href').slice(1);
+      a.classList.toggle('active', target === path || (target === 'inicio' && path === '') || (target === 'pedidos' && path === 'pedido'));
     });
     updateBadges();
   }
@@ -138,7 +143,7 @@
 
   // ---------- Componentes ----------
   const productCard = (p) => `
-    <a class="card product-card" href="#/produto/${p.id}">
+    <a class="card product-card" href="#produto-${p.id}">
       <div class="product-art" aria-hidden="true">${p.emoji}</div>
       <div class="product-info">
         ${p.tag ? `<span class="tag">${esc(p.tag)}</span>` : ''}
@@ -170,25 +175,25 @@
         <p class="hero-greet">${greet}${name}! 👋</p>
         <h1>Feito na brasa,<br>do jeito que você quer.</h1>
         <p>Monte seu lanche, junte pontos e receba quentinho em casa.</p>
-        <a class="btn btn-light" href="#/menu">Ver cardápio</a>
+        <a class="btn btn-light" href="#menu">Ver cardápio</a>
         <div class="hero-art" aria-hidden="true">🍔</div>
       </section>
 
       <section class="promo-strip" aria-label="Promoções">
-        <a class="promo promo-a" href="#/cupons"><strong>10% OFF</strong><span>com BRASA10</span></a>
-        <a class="promo promo-b" href="#/cupons"><strong>Entrega grátis</strong><span>com ENTREGA0</span></a>
-        <a class="promo promo-c" href="#/pontos"><strong>${state.points} pts</strong><span>troque por lanches</span></a>
+        <a class="promo promo-a" href="#cupons"><strong>10% OFF</strong><span>com BRASA10</span></a>
+        <a class="promo promo-b" href="#cupons"><strong>Entrega grátis</strong><span>com ENTREGA0</span></a>
+        <a class="promo promo-c" href="#pontos"><strong>${state.points} pts</strong><span>troque por lanches</span></a>
       </section>
 
       <section>
         <h2 class="section-title">Categorias</h2>
         <div class="cat-grid">
-          ${CATEGORIES.map((c) => `<a class="cat" href="#/menu/${c.id}"><span aria-hidden="true">${c.icon}</span>${c.name}</a>`).join('')}
+          ${CATEGORIES.map((c) => `<a class="cat" href="#menu-${c.id}"><span aria-hidden="true">${c.icon}</span>${c.name}</a>`).join('')}
         </div>
       </section>
 
       <section>
-        <div class="row-between"><h2 class="section-title">Destaques</h2><a class="link" href="#/menu">Ver tudo</a></div>
+        <div class="row-between"><h2 class="section-title">Destaques</h2><a class="link" href="#menu">Ver tudo</a></div>
         <div class="product-list">${featured.map(productCard).join('')}</div>
       </section>`;
   }
@@ -199,7 +204,7 @@
       <h1 class="page-title">Cardápio</h1>
       <label class="search"><span aria-hidden="true">🔎</span><input id="search" type="search" placeholder="Buscar no cardápio" autocomplete="off"></label>
       <nav class="chips" aria-label="Categorias">
-        ${CATEGORIES.map((c) => `<a class="chip ${c.id === catId ? 'active' : ''}" href="#/menu/${c.id}">${c.icon} ${c.name}</a>`).join('')}
+        ${CATEGORIES.map((c) => `<a class="chip ${c.id === catId ? 'active' : ''}" href="#menu-${c.id}">${c.icon} ${c.name}</a>`).join('')}
       </nav>
       <div class="product-list" id="menu-list"></div>`;
     const list = $('#menu-list', el);
@@ -217,13 +222,13 @@
 
   function renderProduct(el, id) {
     const p = product(id);
-    if (!p) { el.innerHTML = emptyState('🤔', 'Produto não encontrado', 'Esse item não está mais no cardápio.', 'Voltar ao cardápio', '#/menu'); return; }
+    if (!p) { el.innerHTML = emptyState('🤔', 'Produto não encontrado', 'Esse item não está mais no cardápio.', 'Voltar ao cardápio', '#menu'); return; }
     const extras = EXTRAS[p.extras] || [];
     const hasSize = p.sized || p.cat === 'combos' && p.combo;
     const sel = { qty: 1, size: hasSize ? 'M' : null, removed: new Set(), extras: new Set() };
 
     el.innerHTML = `
-      <a class="back" href="#/menu/${p.cat}">← Voltar</a>
+      <a class="back" href="#menu-${p.cat}">← Voltar</a>
       <div class="detail-art" aria-hidden="true">${p.emoji}</div>
       <div class="detail-head">
         ${p.tag ? `<span class="tag">${esc(p.tag)}</span>` : ''}
@@ -290,7 +295,7 @@
     $('#add', el).addEventListener('click', () => {
       addToCart({ productId: p.id, qty: sel.qty, size: sel.size, removed: [...sel.removed], extras: [...sel.extras] });
       toast(`${p.name} adicionado ao carrinho`);
-      location.hash = `#/menu/${p.cat}`;
+      location.hash = `#menu-${p.cat}`;
     });
     refresh();
   }
@@ -308,7 +313,7 @@
 
   function renderCart(el) {
     if (!state.cart.length) {
-      el.innerHTML = emptyState('🛒', 'Seu carrinho está vazio', 'Que tal um Brasa Clássico saindo da grelha?', 'Ver cardápio', '#/menu');
+      el.innerHTML = emptyState('🛒', 'Seu carrinho está vazio', 'Que tal um Brasa Clássico saindo da grelha?', 'Ver cardápio', '#menu');
       return;
     }
     const t = totals('delivery');
@@ -353,8 +358,8 @@
       </div>
 
       <div class="sticky-cta">
-        <a class="btn btn-ghost" href="#/menu">Adicionar mais</a>
-        <a class="btn btn-primary grow" href="#/checkout">Continuar · ${money(t.total)}</a>
+        <a class="btn btn-ghost" href="#menu">Adicionar mais</a>
+        <a class="btn btn-primary grow" href="#checkout">Continuar · ${money(t.total)}</a>
       </div>`;
 
     $$('[data-idx]', el).forEach((b) => b.addEventListener('click', () => {
@@ -383,11 +388,11 @@
   ];
 
   function renderCheckout(el) {
-    if (!state.cart.length) { location.hash = '#/carrinho'; return; }
+    if (!state.cart.length) { location.hash = '#carrinho'; return; }
     const pr = state.profile;
     let mode = 'delivery';
     el.innerHTML = `
-      <a class="back" href="#/carrinho">← Carrinho</a>
+      <a class="back" href="#carrinho">← Carrinho</a>
       <h1 class="page-title">Finalizar pedido</h1>
       <form id="checkout" novalidate>
         <div class="segmented" role="radiogroup" aria-label="Tipo de pedido">
@@ -480,7 +485,7 @@
       state.coupon = null;
       save();
       $('#toast').classList.remove('show');
-      location.hash = `#/pedido/${order.id}`;
+      location.hash = `#pedido-${order.id}`;
     });
     drawSummary();
   }
@@ -496,11 +501,11 @@
 
   function renderOrder(el, id) {
     const order = state.orders.find((o) => o.id === id);
-    if (!order) { el.innerHTML = emptyState('🧾', 'Pedido não encontrado', '', 'Meus pedidos', '#/pedidos'); return; }
+    if (!order) { el.innerHTML = emptyState('🧾', 'Pedido não encontrado', '', 'Meus pedidos', '#pedidos'); return; }
     const draw = () => {
       const { steps, current, done } = orderSteps(order);
       el.innerHTML = `
-        <a class="back" href="#/pedidos">← Meus pedidos</a>
+        <a class="back" href="#pedidos">← Meus pedidos</a>
         <div class="order-hero ${done ? 'done' : ''}">
           <div class="order-hero-icon" aria-hidden="true">${steps[current][1]}</div>
           <p class="muted small">Pedido #${order.id}</p>
@@ -538,12 +543,12 @@
       if (p && i.total > 0) { addToCart({ productId: p.id, qty: i.qty, size: p.sized || p.combo ? 'M' : null, removed: [], extras: [] }); added++; }
     });
     toast(added ? 'Itens adicionados ao carrinho' : 'Nada para adicionar');
-    location.hash = '#/carrinho';
+    location.hash = '#carrinho';
   }
 
   function renderOrders(el) {
     if (!state.orders.length) {
-      el.innerHTML = emptyState('🧾', 'Nenhum pedido ainda', 'Seus pedidos aparecem aqui para você acompanhar.', 'Fazer meu primeiro pedido', '#/menu');
+      el.innerHTML = emptyState('🧾', 'Nenhum pedido ainda', 'Seus pedidos aparecem aqui para você acompanhar.', 'Fazer meu primeiro pedido', '#menu');
       return;
     }
     el.innerHTML = `
@@ -552,7 +557,7 @@
         ${state.orders.map((o) => {
           const { steps, current, done } = orderSteps(o);
           return `
-          <li><a class="card order-card" href="#/pedido/${o.id}">
+          <li><a class="card order-card" href="#pedido-${o.id}">
             <div class="row-between"><strong>#${o.id}</strong><span class="status ${done ? 'done' : 'live'}">${steps[current][0]}</span></div>
             <p class="muted small">${new Date(o.createdAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })} · ${o.mode === 'delivery' ? 'Entrega' : 'Retirada'}</p>
             <p class="small">${o.items.map((i) => `${i.qty}× ${esc(i.name)}`).join(', ')}</p>
