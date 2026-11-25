@@ -4,17 +4,17 @@ App de pedidos de fast food (marca fictícia) feito com **HTML, CSS e JavaScript
 
 ## Funcionalidades
 
-- **Início** com destaques, promoções e categorias
-- **Cardápio** por categoria (burgers, combos, frango, acompanhamentos, bebidas, sobremesas) com busca
-- **Monte seu lanche**: escolha tamanho, remova ingredientes e adicione extras (bacon, queijo, carne…)
-- **Carrinho** com quantidades e cupons de desconto (`BRASA10`, `FRITAGRATIS`, `ENTREGA0`, `COMBO15`)
-- **Checkout** com entrega ou retirada, endereço e forma de pagamento (Pix, cartão na maquininha, dinheiro com troco)
-- **Acompanhamento do pedido** em tempo real (simulado): recebido → preparando → saiu para entrega → entregue
-- **Brasa Pontos**: 1 ponto por real gasto, troque por casquinha, batata ou lanche grátis
-- **Histórico de pedidos** com "Pedir de novo"
-- Tema claro/escuro automático, layout para celular e **PWA** instalável que funciona offline
+- **Apresentação** no primeiro acesso (3 telas) com bônus de 60 pontos
+- **Início**: saudação com pontos, escolha do restaurante, carrossel de banners, pop-up de promoção, oferta em destaque, "Ofertas deliciosas" e trilha de recompensas
+- **Peça & Retire**: cardápio em abas (Lançamentos, Mais vendidos, Burgers…) com preço individual e combo; monte o lanche (tamanho do combo, bebida, tirar ingredientes, extras)
+- **Cupons**: ofertas de preço fechado em seções (Black Friday, Favoritos, Monte seu combo, Só no app, Só no drive…) e "Use seus pontos"
+- **Clube Brasa**: código de membro, saldo, extrato, marcos de 50 a 250 pontos, recompensas e destaques
+- **Delivery**: abre o iFood (configure o link em `IFOOD_URL`, no `js/data.js`)
+- **Sacola e checkout** com retirada no balcão ou drive-thru, senha do pedido e acompanhamento em tempo real (simulado)
+- Menu lateral com meus pedidos, meus dados e extrato; tema claro/escuro; PWA instalável
 
-Os dados (carrinho, pedidos e pontos) ficam salvos no navegador (`localStorage`). É uma demonstração: nenhum pedido real é enviado e nenhum pagamento é cobrado.
+As ilustrações dos lanches são desenhadas em SVG pelo próprio app (`js/art.js`).
+Os dados ficam salvos no navegador (`localStorage`). É uma demonstração: nenhum pedido real é enviado e nenhum pagamento é cobrado.
 
 ## Como rodar
 
@@ -30,10 +30,11 @@ python3 -m http.server 8000
 ```
 index.html      # casca do app (topo, área das telas, barra de navegação)
 css/styles.css  # estilos (mobile-first, tema escuro)
-js/data.js      # cardápio, cupons e recompensas
-js/app.js       # rotas, telas, carrinho, checkout, pedidos e pontos
+js/art.js       # ilustrações SVG dos produtos
+js/data.js      # cardápio, ofertas, recompensas, lojas e link do iFood
+js/app.js       # telas, sacola, checkout, pedidos e Clube Brasa
 sw.js           # service worker (offline)
 manifest.json   # instalação como app (PWA)
 ```
 
-Para mudar o cardápio, preços ou cupons, edite `js/data.js`.
+Para mudar cardápio, preços, ofertas, recompensas, restaurantes ou o link do iFood, edite `js/data.js`.

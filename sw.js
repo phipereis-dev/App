@@ -1,6 +1,6 @@
 // Service worker: guarda os arquivos do app para funcionar offline
-const CACHE = 'brasa-burger-v1';
-const FILES = ['./', 'index.html', 'css/styles.css', 'js/data.js', 'js/app.js', 'icon.svg', 'manifest.json'];
+const CACHE = 'brasa-burger-v2';
+const FILES = ['./', 'index.html', 'css/styles.css', 'js/art.js', 'js/data.js', 'js/app.js', 'icon.svg', 'manifest.json'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
