@@ -1,0 +1,11 @@
+{
+  "name": "Brasa Burger",
+  "short_name": "Brasa",
+  "description": "Peça hambúrgueres feitos na brasa, junte pontos e acompanhe seu pedido.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fff8f0",
+  "theme_color": "#1f1612",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
